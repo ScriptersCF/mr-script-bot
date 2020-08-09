@@ -41,11 +41,40 @@ channel_points = {
     639153031619018752: 3
 }
 
+color_list = {
+    "Maroon",
+    "Red",
+    "Coral",
+    "Brown",
+    "Orange",
+    "Wheat",
+    "Gold",
+    "Yellow",
+    "Green",
+    "Lime",
+    "Cyan",
+    "Blue",
+    "Navy Blue",
+    "Blurple",
+    "Fuchsia",
+    "Hot Pink",
+    "Purple",
+    "Plum",
+    "Black",
+    "Grey",
+    "White"
+}
+
 command_aliases = {
     "help": "help",
     "cmds": "help",
     "commands": "help",
     "info": "help",
+    
+    "changecolour": "changecolour",
+    "changecolor": "changecolour",
+    "colorlist": "colourlist",
+    "colourlist": "colourlist",
 
     "toggle": "toggle",
 
@@ -64,6 +93,8 @@ command_aliases = {
     "aban": "aban",
     "shban": "shban",
     "unmute": "unmute",
+    "lock": "lock",
+    "unlock": "unlock",
     "clear": "clear",
     "report": "report"
 }

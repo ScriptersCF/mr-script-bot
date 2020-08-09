@@ -13,15 +13,19 @@ command_list = {
     "notforhire": {"run": commands.notforhire, "requirement": ["Verified"]},
     "scripter": {"run": commands.scripter, "requirement": ["Verified"]},
     "learner": {"run": commands.learner, "requirement": ["Verified"]},
-
+    "changecolour": {"run": commands.changecolor, "requirement": ["Donator+", "Nitro Booster"]},
+    "colourlist": {"run": commands.colourlist, "requirement": ["Verified"]},
+    "report": {"run": punishments.report, "requirement": ["Verified"]},
+    
     "mute": {"run": punishments.mute, "requirement": ["Moderator", "Trial Moderator"]},
     "kick": {"run": punishments.kick, "requirement": ["Moderator"]},
     "ban": {"run": punishments.ban, "requirement": ["Administrator", "Senior Moderator"]},
     "aban": {"run": punishments.aban, "requirement": ["Moderator"]},
     "shban": {"run": punishments.shban, "requirement": ["Moderator"]},
     "unmute": {"run": punishments.unmute, "requirement": ["Moderator"]},
-    "clear": {"run": messages.clear, "requirement": ["Moderator"]},
-    "report": {"run": punishments.report, "requirement": ["Verified"]}
+    "lock": {"run": commands.lock, "requirement": ["Moderator"]},
+    "unlock": {"run": commands.unlock, "requirement": ["Moderator"]},
+    "clear": {"run": messages.clear, "requirement": ["Moderator"]}
 }
 
 
@@ -33,7 +37,6 @@ async def interpret_command(message):
         if name == inputted_command[len(data.prefix):]:
             command = data.command_aliases[name]
             command_data = command_list[command]
-            
             # iterate through user's roles and check if role requirement met
             for role in message.author.roles:
                 if role.name in command_data["requirement"]:
