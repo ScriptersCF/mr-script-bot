@@ -1,4 +1,4 @@
-import discord, sqlite3, json, time
+import discord, sqlite3, json, time, math
 from Modules import data
 
 async def send_embed(channel, title, description):
@@ -17,8 +17,8 @@ async def send_embed(channel, title, description):
 async def send_error(channel, error):
     await send_embed(
         channel,
-        f"⚠️ {error}",
-        ""
+        f"⚠️ **Error**",
+        f"{error}"
     )
 
 
@@ -107,16 +107,20 @@ async def toggle_role(message, role_id):
 
 
 async def increase_count(target, column_type, amount):
-    # get amount of times that punishment has taken place and increase by 1
-    current_amount = get_data(
+    # get amount of times that data has taken place and increase by <amount>
+
+    old_amount = get_data(
         f"SELECT {column_type}s FROM scores WHERE userId = (?)",
         (str(target.id), )
     )[0] or 0
-
+ 
     set_data(
         f"UPDATE scores SET {column_type}s = (?) WHERE userId = (?)",
-        (str(current_amount + amount), str(target.id))
+        (str(old_amount + amount), str(target.id))
     )
+    
+    new_amount = str(old_amount + amount)
+    return old_amount, new_amount
 
 
 async def set_punish_time(target, punish_type, length, multiply):
@@ -133,3 +137,57 @@ async def set_punish_time(target, punish_type, length, multiply):
         f"UPDATE punishments SET {punish_type}End = (?) WHERE userId = (?)",
         (str(end_time), str(target.id))
     )
+    
+    
+async def give_role(message, role_id): # This is different from toggle_role()
+    role = message.guild.get_role(role_id)
+    if not role in message.author.roles:
+        await message.author.add_roles(role)
+        return role
+    
+    
+async def get_level_from_points(user_points):
+    # Returns user level based on their points
+    return 1 + (math.floor(0.3 * math.sqrt(user_points)))
+
+
+async def get_user_embed(user, xp, level_up, new_role):
+    # Returns embed for user level and points
+        
+    level = await get_level_from_points(xp) # Get level from xp
+
+    next_xp = ((level)/0.3)**2 # Basic maths to get minimum points needed for next level
+    percentage_xp = xp/next_xp # How much is left for the next level 
+    
+    description = "**User level**\n" # Generic description
+    if level_up:
+        # Increment description if it's a level up.
+        description += f":tada: Congratulations, {user.mention}, you have leveled up! (`{level - 1} -> {level}`)"    
+    
+    if new_role:
+        # Increment description if user got a new xp role.
+        description += f"You were awarded the following role: `{new_role}`"
+    
+    # Progress bar:
+    emojis = "\n\n" # Escape and skip line
+    for i in range(10):
+        if i < math.floor(percentage_xp * 10):
+            emojis += ":white_large_square: "
+        else:
+            emojis += ":black_large_square: "                
+    
+    # Create/handle embed
+    embed = discord.Embed(
+        colour = discord.Colour(0x76adf1),
+        description = description + emojis
+    )
+    
+    user_and_discriminator = f"{user.name}#{user.discriminator}"
+    user_avatar = user.avatar_url
+
+    embed.set_author(name = user_and_discriminator, icon_url = user_avatar)
+    embed.set_thumbnail(url = user_avatar)
+    embed.add_field(name = "**Level**", value = level, inline = True)
+    embed.add_field(name = "**Points**", value = f"{xp}/{round(next_xp)} XP", inline = True)
+    
+    return embed
